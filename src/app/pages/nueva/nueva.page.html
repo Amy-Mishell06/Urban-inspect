@@ -1,0 +1,96 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start"><ion-back-button defaultHref="/tabs/tab2"></ion-back-button></ion-buttons>
+    <ion-title>Nueva incidencia</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Cada cambio guarda el borrador -->
+  <ion-list (ionInput)="guardarBorrador()" (ionChange)="guardarBorrador()">
+    <ion-item>
+      <ion-select label="Tipo *" labelPlacement="stacked" [(ngModel)]="tipo" placeholder="Seleccione">
+        @for (t of tipos; track t) { <ion-select-option [value]="t">{{ t }}</ion-select-option> }
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-textarea label="Descripción *" labelPlacement="stacked" [(ngModel)]="descripcion" [autoGrow]="true"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-input label="Dirección *" labelPlacement="stacked" [(ngModel)]="direccion"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="Sector *" labelPlacement="stacked" [(ngModel)]="sector"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-select label="Prioridad *" labelPlacement="stacked" [(ngModel)]="prioridad" placeholder="Seleccione">
+        <ion-select-option value="baja">Baja</ion-select-option>
+        <ion-select-option value="media">Media</ion-select-option>
+        <ion-select-option value="alta">Alta</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+
+  <!-- fotografía -->
+  <h3>Fotografía
+    @if (prioridad() === 'alta') { <ion-text color="danger">(obligatoria)</ion-text> } @else { (opcional) }
+  </h3>
+  @if (foto()) {
+    <img [src]="foto()" alt="Vista previa" style="width:100%;border-radius:8px" />
+    <ion-button fill="clear" color="danger" (click)="quitarFoto()"><ion-icon slot="start" name="trash"></ion-icon>Quitar foto</ion-button>
+  }
+  <ion-button expand="block" size="large" (click)="tomarFoto()">
+    <ion-icon slot="start" name="camera"></ion-icon>{{ foto() ? 'Tomar otra' : 'Tomar fotografía' }}
+  </ion-button>
+
+  <!-- ubicación -->
+  <h3>Ubicación
+    @if (tipo() === 'bache') { <ion-text color="danger">(obligatoria)</ion-text> } @else { (opcional) }
+  </h3>
+  <ion-button expand="block" size="large" fill="outline" (click)="obtenerUbicacion()">
+    <ion-icon slot="start" name="locate"></ion-icon>Usar GPS
+  </ion-button>
+  @if (gpsMensaje()) { <p><small>{{ gpsMensaje() }}</small></p> }
+  <ion-list>
+    <ion-item>
+      <ion-input type="number" label="Latitud" labelPlacement="stacked" placeholder="-0.180653"
+        [(ngModel)]="latitud" (ionChange)="coordsCambiaron()"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input type="number" label="Longitud" labelPlacement="stacked" placeholder="-78.467834"
+        [(ngModel)]="longitud" (ionChange)="coordsCambiaron()"></ion-input>
+    </ion-item>
+  </ion-list>
+
+  <!-- clima -->
+  <ion-card>
+    <ion-card-header><ion-card-title>Clima en la ubicación</ion-card-title></ion-card-header>
+    <ion-card-content>
+      @switch (climaEstado()) {
+        @case ('idle') { <p>Se consultará cuando haya coordenadas.</p> }
+        @case ('cargando') { <ion-spinner></ion-spinner> }
+        @case ('error') { <ion-text color="warning"><p>{{ climaMensaje() }}</p></ion-text> }
+        @case ('ok') {
+          <p>🌡️ Temperatura: <b>{{ climaDatos()?.temperatura }} °C</b></p>
+          <p>🌧️ Precipitación última hora: <b>{{ climaDatos()?.precipitacion }} mm</b></p>
+          <p>☁️ Condición: <b>{{ climaDatos()?.descripcion }}</b></p>
+          @if (lluviaFuerte()) {
+            <ion-text color="danger"><p><b>⚠️ Lluvia mayor a 5 mm en la última hora: las condiciones podrían dificultar el mantenimiento.</b></p></ion-text>
+          }
+        }
+      }
+      <ion-button size="small" fill="clear" (click)="consultarClima()"><ion-icon slot="start" name="cloud"></ion-icon>Consultar clima</ion-button>
+      <p><small>Fuente: Open-Meteo</small></p>
+    </ion-card-content>
+  </ion-card>
+
+  @if (errores().length) {
+    <ion-text color="danger">
+      <ul>@for (e of errores(); track e) { <li>{{ e }}</li> }</ul>
+    </ion-text>
+  }
+
+  <ion-button expand="block" size="large" color="success" (click)="guardar()" [disabled]="guardando()">
+    @if (guardando()) { <ion-spinner name="crescent"></ion-spinner> } @else { Guardar incidencia }
+  </ion-button>
+</ion-content>
