@@ -1,15 +1,54 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title> Tab 2 </ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Incidencias</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refrescar($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  @if (error()) {
+    <div class="ion-padding ion-text-center">
+      <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+      <ion-button (click)="reiniciar()"><ion-icon slot="start" name="refresh"></ion-icon>Reintentar</ion-button>
+    </div>
+  }
+
+  @if (!cargando() && !error() && incidencias().length === 0) {
+    <div class="ion-padding ion-text-center">
+      <p>No existen incidencias registradas.</p>
+    </div>
+  }
+
+  @for (inc of incidencias(); track inc.id) {
+    <ion-card button [routerLink]="['/detalle', inc.id]">
+      @if (inc.fotoUrl) {
+        <img [src]="inc.fotoUrl" alt="Foto de la incidencia" style="width:100%;max-height:180px;object-fit:cover" />
+      }
+      <ion-card-header>
+        <ion-card-subtitle>{{ inc.codigo }} · {{ inc.tipo | uppercase }}</ion-card-subtitle>
+        <ion-card-title>{{ inc.descripcion }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>📍 {{ inc.direccion }} — {{ inc.sector }}</p>
+        <p>📅 {{ inc.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+        <ion-badge [color]="colorEstado(inc.estado)">{{ textoEstado(inc.estado) }}</ion-badge>
+        @if (!inc.fotoUrl) { <p><small>Sin fotografía</small></p> }
+      </ion-card-content>
+    </ion-card>
+  }
+
+  @if (cargando() && incidencias().length === 0) {
+    <div class="ion-text-center ion-padding"><ion-spinner></ion-spinner></div>
+  }
+
+  <ion-infinite-scroll [disabled]="!hayMas()" (ionInfinite)="cargarPagina($event)">
+    <ion-infinite-scroll-content loadingText="Cargando más..."></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button routerLink="/nueva"><ion-icon name="add"></ion-icon></ion-fab-button>
+  </ion-fab>
 </ion-content>
