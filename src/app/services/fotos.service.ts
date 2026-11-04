@@ -7,6 +7,8 @@ export class FotosService {
     const fd = new FormData();
     fd.append('file', dataUrl);
     fd.append('upload_preset', environment.cloudinaryPreset);
+    fd.append('folder', 'urbaninspect/incidencias');   
+    fd.append('tags', 'urbaninspect');                 
     const r = await fetch(`https://api.cloudinary.com/v1_1/${environment.cloudinaryCloud}/image/upload`,
       { method: 'POST', body: fd });
     if (!r.ok) throw new Error('No se pudo subir la foto');

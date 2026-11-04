@@ -12,12 +12,13 @@ import { bookmark, bookmarkOutline } from 'ionicons/icons';
 import { IncidenciasService } from '../../services/incidencias.service';
 import { SeguimientoService } from '../../services/seguimiento.service';
 import { Incidencia, Estado, textoEstado, colorEstado } from '../../models/incidencia.model';
+import { CloudinaryPipe } from '../../pipes/cloudinary.pipe';
 
 @Component({
   selector: 'app-detalle',
   templateUrl: 'detalle.page.html',
   standalone: true,
-  imports: [DatePipe, UpperCasePipe, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent,
+  imports: [CloudinaryPipe, DatePipe, UpperCasePipe, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent,
     IonButtons, IonBackButton, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
     IonSelect, IonSelectOption, IonTextarea, IonSpinner, IonText],
 })

@@ -25,7 +25,8 @@
   @for (inc of incidencias(); track inc.id) {
     <ion-card button [routerLink]="['/detalle', inc.id]">
       @if (inc.fotoUrl) {
-        <img [src]="inc.fotoUrl" alt="Foto de la incidencia" style="width:100%;max-height:180px;object-fit:cover" />
+        <img [src]="inc.fotoUrl | cloudinary:'w_1200,h_500,c_fill,g_auto'" alt="Foto de la incidencia"
+             loading="lazy" style="width:100%;height:180px;object-fit:cover" />
       }
       <ion-card-header>
         <ion-card-subtitle>{{ inc.codigo }} · {{ inc.tipo | uppercase }}</ion-card-subtitle>

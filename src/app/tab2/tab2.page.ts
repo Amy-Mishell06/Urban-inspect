@@ -11,12 +11,13 @@ import { addIcons } from 'ionicons';
 import { add, refresh } from 'ionicons/icons';
 import { IncidenciasService } from '../services/incidencias.service';
 import { Incidencia, textoEstado, colorEstado } from '../models/incidencia.model';
+import { CloudinaryPipe } from '../pipes/cloudinary.pipe';
 
 @Component({
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
   standalone: true,
-  imports: [DatePipe, UpperCasePipe, RouterLink, IonHeader, IonToolbar, IonTitle, IonContent,
+  imports: [CloudinaryPipe, DatePipe, UpperCasePipe, RouterLink, IonHeader, IonToolbar, IonTitle, IonContent,
     IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonBadge,
     IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, IonButton,
     IonIcon, IonSpinner, IonText, IonFab, IonFabButton],
