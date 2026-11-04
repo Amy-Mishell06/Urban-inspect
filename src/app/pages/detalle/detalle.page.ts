@@ -1,26 +1,33 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DatePipe, UpperCasePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton, IonButton, IonIcon,
-  IonList, IonItem, IonLabel, IonBadge, IonSelect, IonSelectOption, IonTextarea, IonSpinner,
-  IonText, ToastController
+  IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonBadge, IonSelect, IonSelectOption,
+  IonTextarea, IonSpinner, IonItem, IonSkeletonText, ToastController
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { bookmark, bookmarkOutline } from 'ionicons/icons';
+import {
+  bookmark, bookmarkOutline, location, calendar, map, chatbox, bulb, construct, warning,
+  water, leaf, alertCircle, lockClosed
+} from 'ionicons/icons';
 import { IncidenciasService } from '../../services/incidencias.service';
 import { SeguimientoService } from '../../services/seguimiento.service';
-import { Incidencia, Estado, textoEstado, colorEstado } from '../../models/incidencia.model';
+import {
+  Incidencia, Estado, textoEstado, colorEstado, textoTipo, iconoTipo, colorPrioridad
+} from '../../models/incidencia.model';
 import { CloudinaryPipe } from '../../pipes/cloudinary.pipe';
 
 @Component({
   selector: 'app-detalle',
   templateUrl: 'detalle.page.html',
+  styleUrls: ['detalle.page.scss'],
   standalone: true,
-  imports: [CloudinaryPipe, DatePipe, UpperCasePipe, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent,
-    IonButtons, IonBackButton, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
-    IonSelect, IonSelectOption, IonTextarea, IonSpinner, IonText],
+  imports: [CloudinaryPipe, DatePipe, DecimalPipe, FormsModule, IonHeader, IonToolbar, IonTitle,
+    IonContent, IonButtons, IonBackButton, IonButton, IonIcon, IonCard, IonCardHeader,
+    IonCardTitle, IonCardContent, IonBadge, IonSelect, IonSelectOption, IonTextarea, IonSpinner,
+    IonItem, IonSkeletonText],
 })
 export class DetallePage implements OnInit {
   private route = inject(ActivatedRoute);
@@ -38,13 +45,24 @@ export class DetallePage implements OnInit {
 
   textoEstado = textoEstado;
   colorEstado = colorEstado;
+  textoTipo = textoTipo;
+  iconoTipo = iconoTipo;
+  colorPrioridad = colorPrioridad;
 
-  // reglas de transición
+  // R9: reglas de transición (sin cambios)
   readonly transiciones: Record<Estado, Estado[]> = {
     pendiente: ['en_proceso', 'resuelta'],
     en_proceso: ['resuelta'],
-    resuelta: [],   // una resuelta no puede volver atrás
+    resuelta: [],
   };
+
+  // Orden de los pasos para la barra de progreso
+  readonly pasos: Estado[] = ['pendiente', 'en_proceso', 'resuelta'];
+
+  indiceActual = computed(() => {
+    const i = this.inc();
+    return i ? this.pasos.indexOf(i.estado) : -1;
+  });
 
   opciones = computed(() => {
     const i = this.inc();
@@ -56,7 +74,10 @@ export class DetallePage implements OnInit {
     return !!i && this.seguimiento.codigos().includes(i.codigo);
   });
 
-  constructor() { addIcons({ bookmark, bookmarkOutline }); }
+  constructor() {
+    addIcons({ bookmark, bookmarkOutline, location, calendar, map, chatbox, bulb, construct,
+      warning, water, leaf, alertCircle, lockClosed });
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -66,9 +87,16 @@ export class DetallePage implements OnInit {
     });
   }
 
+  urlMapa(i: Incidencia): string {
+    return `https://www.google.com/maps/search/?api=1&query=${i.latitud},${i.longitud}`;
+  }
+
   async alternarSeguimiento() {
     const i = this.inc();
-    if (i) await this.seguimiento.alternar(i.codigo);
+    if (!i) return;
+    const estaba = this.marcada();
+    await this.seguimiento.alternar(i.codigo);
+    this.mostrar(estaba ? 'Quitada de su seguimiento.' : 'Agregada a su seguimiento.', 'medium');
   }
 
   guardarEstado() {
@@ -95,7 +123,7 @@ export class DetallePage implements OnInit {
         this.nuevoEstado = '';
         this.observacion = '';
         this.guardando.set(false);
-        this.servicio.cambios.next();          // el listado se recarga
+        this.servicio.cambios.next();
         this.mostrar('Estado actualizado en el servicio.', 'success');
       },
       error: () => {

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start"><ion-back-button defaultHref="/tabs/tab2"></ion-back-button></ion-buttons>
-    <ion-title>Detalle</ion-title>
+    <ion-title>{{ inc()?.codigo ?? 'Detalle' }}</ion-title>
     @if (inc()) {
       <ion-buttons slot="end">
         <ion-button (click)="alternarSeguimiento()">
@@ -12,57 +12,132 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  @if (cargando()) { <div class="ion-text-center"><ion-spinner></ion-spinner></div> }
-  @if (error()) { <ion-text color="danger"><p>{{ error() }}</p></ion-text> }
+<ion-content>
+  <!-- Cargando -->
+  @if (cargando()) {
+    <ion-skeleton-text [animated]="true" style="height:220px;margin:0"></ion-skeleton-text>
+    <div class="ion-padding">
+      <ion-skeleton-text [animated]="true" style="width:30%"></ion-skeleton-text>
+      <ion-skeleton-text [animated]="true" style="width:90%;height:22px"></ion-skeleton-text>
+      <ion-skeleton-text [animated]="true" style="width:50%"></ion-skeleton-text>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="vacio">
+      <ion-icon name="alert-circle" color="danger"></ion-icon>
+      <p>{{ error() }}</p>
+    </div>
+  }
 
   @if (inc(); as i) {
-    @if (i.fotoUrl) {
-      <img [src]="i.fotoUrl | cloudinary:'w_1600,c_limit'" alt="Foto" style="width:100%;border-radius:8px" />
-    } @else {
-      <p><small>Sin fotografía</small></p>
+    <!-- Portada -->
+    <div class="portada">
+      @if (i.fotoUrl) {
+        <img [src]="i.fotoUrl | cloudinary:'w_1600,c_limit'" alt="Foto de la incidencia" />
+      } @else {
+        <div class="sin-foto">
+          <ion-icon [name]="iconoTipo(i.tipo)"></ion-icon>
+          <span>Sin fotografía</span>
+        </div>
+      }
+      <div class="insignias">
+        <ion-badge [color]="colorEstado(i.estado)">{{ textoEstado(i.estado) }}</ion-badge>
+        <ion-badge [color]="colorPrioridad(i.prioridad)" class="cap">Prioridad {{ i.prioridad }}</ion-badge>
+      </div>
+    </div>
+
+    <!-- Encabezado -->
+    <div class="cabecera">
+      <span class="tipo"><ion-icon [name]="iconoTipo(i.tipo)"></ion-icon>{{ textoTipo(i.tipo) }}</span>
+      <h1>{{ i.descripcion }}</h1>
+      <p class="fecha">
+        <ion-icon name="calendar"></ion-icon>
+        Registrada el {{ i.fecha | date:'dd/MM/yyyy' }} a las {{ i.fecha | date:'HH:mm' }}
+      </p>
+    </div>
+
+    <!-- Progreso del estado -->
+    <ion-card>
+      <ion-card-header><ion-card-title>Progreso</ion-card-title></ion-card-header>
+      <ion-card-content>
+        <div class="pasos">
+          @for (p of pasos; track p; let idx = $index) {
+            <div class="paso" [class.hecho]="idx <= indiceActual()" [class.actual]="idx === indiceActual()">
+              <div class="punto"></div>
+              <span>{{ textoEstado(p) }}</span>
+            </div>
+          }
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Ubicación -->
+    <ion-card>
+      <ion-card-header><ion-card-title>Ubicación</ion-card-title></ion-card-header>
+      <ion-card-content>
+        <div class="dato">
+          <ion-icon name="location"></ion-icon>
+          <div><b>{{ i.direccion }}</b><br />{{ i.sector }}</div>
+        </div>
+        @if (i.latitud != null && i.longitud != null) {
+          <div class="dato">
+            <ion-icon name="map"></ion-icon>
+            <div>{{ i.latitud | number:'1.5-6' }}, {{ i.longitud | number:'1.5-6' }}</div>
+          </div>
+          <ion-button expand="block" fill="outline" [href]="urlMapa(i)" target="_blank">
+            <ion-icon slot="start" name="map"></ion-icon>Ver en el mapa
+          </ion-button>
+        } @else {
+          <p class="nota">Sin coordenadas registradas.</p>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Observación -->
+    @if (i.observacion) {
+      <ion-card>
+        <ion-card-header><ion-card-title>Observación</ion-card-title></ion-card-header>
+        <ion-card-content>
+          <div class="dato">
+            <ion-icon name="chatbox"></ion-icon>
+            <div class="observacion">{{ i.observacion }}</div>
+          </div>
+        </ion-card-content>
+      </ion-card>
     }
 
-    <ion-list>
-      <ion-item><ion-label><p>Código</p><h2>{{ i.codigo }}</h2></ion-label></ion-item>
-      <ion-item><ion-label><p>Tipo</p><h2>{{ i.tipo | uppercase }}</h2></ion-label></ion-item>
-      <ion-item><ion-label class="ion-text-wrap"><p>Descripción</p><h2>{{ i.descripcion }}</h2></ion-label></ion-item>
-      <ion-item><ion-label><p>Dirección</p><h2>{{ i.direccion }}</h2></ion-label></ion-item>
-      <ion-item><ion-label><p>Sector</p><h2>{{ i.sector }}</h2></ion-label></ion-item>
-      <ion-item><ion-label><p>Fecha</p><h2>{{ i.fecha | date:'dd/MM/yyyy HH:mm' }}</h2></ion-label></ion-item>
-      <ion-item><ion-label><p>Prioridad</p><h2>{{ i.prioridad }}</h2></ion-label></ion-item>
-      <ion-item>
-        <ion-label><p>Estado</p></ion-label>
-        <ion-badge slot="end" [color]="colorEstado(i.estado)">{{ textoEstado(i.estado) }}</ion-badge>
-      </ion-item>
-      @if (i.latitud != null && i.longitud != null) {
-        <ion-item><ion-label><p>Coordenadas</p><h2>{{ i.latitud }}, {{ i.longitud }}</h2></ion-label></ion-item>
-      }
-      @if (i.observacion) {
-        <ion-item><ion-label class="ion-text-wrap"><p>Observación</p><h2>{{ i.observacion }}</h2></ion-label></ion-item>
-      }
-    </ion-list>
-
-    <h3>Cambiar estado</h3>
-    @if (opciones().length === 0) {
-      <ion-text color="medium"><p>Esta incidencia está <b>resuelta</b> y no puede volver a pendiente ni a en proceso.</p></ion-text>
-    } @else {
-      <ion-list>
-        <ion-item>
-          <ion-select label="Nuevo estado" labelPlacement="stacked" [(ngModel)]="nuevoEstado" placeholder="Seleccione">
-            @for (op of opciones(); track op) {
-              <ion-select-option [value]="op">{{ textoEstado(op) }}</ion-select-option>
-            }
-          </ion-select>
-        </ion-item>
-        <ion-item>
-          <ion-textarea label="Observación" labelPlacement="stacked" [(ngModel)]="observacion"
-            [placeholder]="nuevoEstado === 'resuelta' ? 'Obligatoria para resolver' : 'Opcional'" autoGrow="true"></ion-textarea>
-        </ion-item>
-      </ion-list>
-      <ion-button expand="block" size="large" (click)="guardarEstado()" [disabled]="!nuevoEstado || guardando()">
-        Guardar estado
-      </ion-button>
-    }
+    <!-- Cambiar estado (R9) -->
+    <ion-card class="ultima">
+      <ion-card-header><ion-card-title>Cambiar estado</ion-card-title></ion-card-header>
+      <ion-card-content>
+        @if (opciones().length === 0) {
+          <div class="bloqueado">
+            <ion-icon name="lock-closed"></ion-icon>
+            <span>Incidencia resuelta: ya no puede volver a pendiente ni a en proceso.</span>
+          </div>
+        } @else {
+          <ion-item lines="none" class="campo">
+            <ion-select label="Nuevo estado" labelPlacement="stacked" [(ngModel)]="nuevoEstado"
+              placeholder="Seleccione" interface="action-sheet">
+              @for (op of opciones(); track op) {
+                <ion-select-option [value]="op">{{ textoEstado(op) }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+          <ion-item lines="none" class="campo">
+            <ion-textarea [label]="nuevoEstado === 'resuelta' ? 'Observación *' : 'Observación'"
+              labelPlacement="stacked" [(ngModel)]="observacion" [autoGrow]="true"
+              [placeholder]="nuevoEstado === 'resuelta' ? 'Obligatoria: describa la reparación' : 'Opcional'">
+            </ion-textarea>
+          </ion-item>
+          <ion-button expand="block" size="large" (click)="guardarEstado()"
+            [disabled]="!nuevoEstado || guardando()">
+            @if (guardando()) { <ion-spinner name="crescent"></ion-spinner> } @else { Guardar estado }
+          </ion-button>
+        }
+      </ion-card-content>
+    </ion-card>
   }
 </ion-content>
