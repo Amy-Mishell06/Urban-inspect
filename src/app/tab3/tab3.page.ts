@@ -5,15 +5,20 @@ import {
   IonIcon, IonSpinner, IonText, IonBadge
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { trash } from 'ionicons/icons';
+import {
+  trash, bookmarkOutline, list, bulb, construct, warning, water, leaf, alertCircle, location
+} from 'ionicons/icons';
 import { forkJoin, of, map, catchError } from 'rxjs';
 import { IncidenciasService } from '../services/incidencias.service';
 import { SeguimientoService } from '../services/seguimiento.service';
-import { Incidencia, textoEstado, colorEstado } from '../models/incidencia.model';
+import {
+  Incidencia, textoEstado, colorEstado, textoTipo, iconoTipo, colorPrioridad
+} from '../models/incidencia.model';
 
 @Component({
   selector: 'app-tab3',
   templateUrl: 'tab3.page.html',
+  styleUrls: ['tab3.page.scss'],
   standalone: true,
   imports: [RouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem,
     IonLabel, IonButton, IonIcon, IonSpinner, IonText, IonBadge],
@@ -28,8 +33,13 @@ export class Tab3Page {
 
   textoEstado = textoEstado;
   colorEstado = colorEstado;
+  textoTipo = textoTipo;
+  iconoTipo = iconoTipo;
+  colorPrioridad = colorPrioridad;
 
-  constructor() { addIcons({ trash }); }
+  constructor() {
+    addIcons({ trash, bookmarkOutline, list, bulb, construct, warning, water, leaf, alertCircle, location });
+  }
 
   async ionViewWillEnter() {
     await this.seguimiento.esperar();

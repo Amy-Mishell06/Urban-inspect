@@ -1,32 +1,57 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>Seguimiento</ion-title>
+    <ion-title>Mi seguimiento</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  @if (cargando()) { <div class="ion-text-center ion-padding"><ion-spinner></ion-spinner></div> }
-  @if (error()) { <ion-text color="danger"><p class="ion-padding">{{ error() }}</p></ion-text> }
+  @if (cargando()) {
+    <div class="ion-text-center ion-padding"><ion-spinner></ion-spinner></div>
+  }
 
+  @if (error()) {
+    <ion-text color="danger"><p class="ion-padding">{{ error() }}</p></ion-text>
+  }
+
+  <!-- Vacío -->
   @if (!cargando() && items().length === 0) {
-    <div class="ion-padding ion-text-center">
-      <p>No tiene incidencias marcadas para seguimiento.</p>
-      <p><small>Márquelas con el ícono 🔖 en el detalle.</small></p>
+    <div class="vacio">
+      <ion-icon name="bookmark-outline"></ion-icon>
+      <h2>Sin incidencias en seguimiento</h2>
+      <p>Abra una incidencia y toque el marcador de arriba a la derecha para seguirla desde aquí.</p>
+      <ion-button routerLink="/tabs/tab2">
+        <ion-icon slot="start" name="list"></ion-icon>Ver incidencias
+      </ion-button>
     </div>
   }
 
-  <ion-list>
-    @for (inc of items(); track inc.codigo) {
-      <ion-item>
-        <ion-label [routerLink]="['/detalle', inc.id]" class="ion-text-wrap">
-          <h2>{{ inc.codigo }} · {{ inc.tipo }}</h2>
-          <p>{{ inc.direccion }} — {{ inc.sector }}</p>
-          <ion-badge [color]="colorEstado(inc.estado)">{{ textoEstado(inc.estado) }}</ion-badge>
-        </ion-label>
-        <ion-button slot="end" fill="clear" color="danger" (click)="desmarcar(inc)">
-          <ion-icon slot="icon-only" name="trash"></ion-icon>
-        </ion-button>
-      </ion-item>
-    }
-  </ion-list>
+  <!-- Lista -->
+  @if (items().length > 0) {
+    <p class="contador">{{ items().length }} incidencia(s) guardadas en este dispositivo</p>
+
+    <ion-list lines="none">
+      @for (inc of items(); track inc.codigo) {
+        <ion-item class="fila" [button]="true" [detail]="false" [routerLink]="['/detalle', inc.id]">
+          <div slot="start" class="icono">
+            <ion-icon [name]="iconoTipo(inc.tipo)"></ion-icon>
+          </div>
+
+          <ion-label class="ion-text-wrap">
+            <p class="codigo">{{ inc.codigo }} · {{ textoTipo(inc.tipo) }}</p>
+            <h2>{{ inc.descripcion }}</h2>
+            <p class="lugar"><ion-icon name="location"></ion-icon>{{ inc.sector }}</p>
+            <div class="insignias">
+              <ion-badge [color]="colorEstado(inc.estado)">{{ textoEstado(inc.estado) }}</ion-badge>
+              <ion-badge [color]="colorPrioridad(inc.prioridad)" class="cap">{{ inc.prioridad }}</ion-badge>
+            </div>
+          </ion-label>
+
+          <ion-button slot="end" fill="clear" color="danger"
+            (click)="desmarcar(inc); $event.stopPropagation()">
+            <ion-icon slot="icon-only" name="trash"></ion-icon>
+          </ion-button>
+        </ion-item>
+      }
+    </ion-list>
+  }
 </ion-content>
