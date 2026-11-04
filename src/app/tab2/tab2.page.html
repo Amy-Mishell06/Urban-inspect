@@ -2,6 +2,14 @@
   <ion-toolbar color="primary">
     <ion-title>Incidencias</ion-title>
   </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="filtro()" (ionChange)="cambiarFiltro($event)" [scrollable]="true">
+      <ion-segment-button value="todas"><ion-label>Todas</ion-label></ion-segment-button>
+      <ion-segment-button value="pendiente"><ion-label>Pendientes</ion-label></ion-segment-button>
+      <ion-segment-button value="en_proceso"><ion-label>En proceso</ion-label></ion-segment-button>
+      <ion-segment-button value="resuelta"><ion-label>Resueltas</ion-label></ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
@@ -9,40 +17,72 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
+  <!-- Error -->
   @if (error()) {
-    <div class="ion-padding ion-text-center">
-      <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+    <div class="vacio">
+      <ion-icon name="alert-circle" color="danger"></ion-icon>
+      <p>{{ error() }}</p>
       <ion-button (click)="reiniciar()"><ion-icon slot="start" name="refresh"></ion-icon>Reintentar</ion-button>
     </div>
   }
 
+  <!-- Vacío -->
   @if (!cargando() && !error() && incidencias().length === 0) {
-    <div class="ion-padding ion-text-center">
-      <p>No existen incidencias registradas.</p>
+    <div class="vacio">
+      <ion-icon name="file-tray-outline"></ion-icon>
+      <p>{{ textoVacio() }}</p>
     </div>
   }
 
-  @for (inc of incidencias(); track inc.id) {
-    <ion-card button [routerLink]="['/detalle', inc.id]">
-      @if (inc.fotoUrl) {
-        <img [src]="inc.fotoUrl | cloudinary:'w_1200,h_500,c_fill,g_auto'" alt="Foto de la incidencia"
-             loading="lazy" style="width:100%;height:180px;object-fit:cover" />
-      }
-      <ion-card-header>
-        <ion-card-subtitle>{{ inc.codigo }} · {{ inc.tipo | uppercase }}</ion-card-subtitle>
-        <ion-card-title>{{ inc.descripcion }}</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <p>📍 {{ inc.direccion }} — {{ inc.sector }}</p>
-        <p>📅 {{ inc.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
-        <ion-badge [color]="colorEstado(inc.estado)">{{ textoEstado(inc.estado) }}</ion-badge>
-        @if (!inc.fotoUrl) { <p><small>Sin fotografía</small></p> }
-      </ion-card-content>
-    </ion-card>
+  <!-- Esqueletos mientras carga la primera página -->
+  @if (cargando() && incidencias().length === 0) {
+    @for (n of esqueletos; track n) {
+      <ion-card class="tarjeta">
+        <ion-skeleton-text [animated]="true" style="height:160px;margin:0"></ion-skeleton-text>
+        <ion-card-content>
+          <ion-skeleton-text [animated]="true" style="width:40%"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width:85%;height:18px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width:60%"></ion-skeleton-text>
+        </ion-card-content>
+      </ion-card>
+    }
   }
 
-  @if (cargando() && incidencias().length === 0) {
-    <div class="ion-text-center ion-padding"><ion-spinner></ion-spinner></div>
+  <!-- Tarjetas -->
+  @for (inc of incidencias(); track inc.id) {
+    <ion-card button class="tarjeta" [routerLink]="['/detalle', inc.id]">
+      <div class="foto">
+        @if (inc.fotoUrl) {
+          <img [src]="inc.fotoUrl | cloudinary:'w_1200,h_500,c_fill,g_auto'" alt="Foto de la incidencia" loading="lazy" />
+        } @else {
+          <div class="sin-foto">
+            <ion-icon [name]="iconoTipo(inc.tipo)"></ion-icon>
+            <span>Sin fotografía</span>
+          </div>
+        }
+        <ion-badge class="estado" [color]="colorEstado(inc.estado)">{{ textoEstado(inc.estado) }}</ion-badge>
+      </div>
+
+      <ion-card-header>
+        <div class="meta">
+          <span class="tipo"><ion-icon [name]="iconoTipo(inc.tipo)"></ion-icon>{{ textoTipo(inc.tipo) }}</span>
+          <span class="codigo">{{ inc.codigo }}</span>
+        </div>
+        <ion-card-title>{{ inc.descripcion }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="dato">
+          <ion-icon name="location"></ion-icon>
+          <span>{{ inc.direccion }} · <b>{{ inc.sector }}</b></span>
+        </div>
+        <div class="dato">
+          <ion-icon name="calendar"></ion-icon>
+          <span>{{ inc.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <ion-badge class="prioridad" [color]="colorPrioridad(inc.prioridad)">Prioridad {{ inc.prioridad }}</ion-badge>
+      </ion-card-content>
+    </ion-card>
   }
 
   <ion-infinite-scroll [disabled]="!hayMas()" (ionInfinite)="cargarPagina($event)">
@@ -50,6 +90,6 @@
   </ion-infinite-scroll>
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button routerLink="/nueva"><ion-icon name="add"></ion-icon></ion-fab-button>
+    <ion-fab-button routerLink="/nueva" color="secondary"><ion-icon name="add"></ion-icon></ion-fab-button>
   </ion-fab>
 </ion-content>

@@ -26,3 +26,18 @@ export function textoEstado(e: Estado): string {
 export function colorEstado(e: Estado): string {
   return { pendiente: 'warning', en_proceso: 'primary', resuelta: 'success' }[e];
 }
+
+const NOMBRES_TIPO: Record<string, string> = {
+  luminaria: 'Luminaria', bache: 'Bache', senalizacion: 'Señalización',
+  alcantarilla: 'Alcantarilla', parque: 'Parque',
+};
+const ICONOS_TIPO: Record<string, string> = {
+  luminaria: 'bulb', bache: 'construct', senalizacion: 'warning',
+  alcantarilla: 'water', parque: 'leaf',
+};
+
+export function textoTipo(t: string): string { return NOMBRES_TIPO[t] ?? t; }
+export function iconoTipo(t: string): string { return ICONOS_TIPO[t] ?? 'alert-circle'; }
+export function colorPrioridad(p: Prioridad): string {
+  return { baja: 'medium', media: 'secondary', alta: 'danger' }[p];
+}

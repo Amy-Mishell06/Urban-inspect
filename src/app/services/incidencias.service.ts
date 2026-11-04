@@ -11,17 +11,17 @@ export class IncidenciasService {
 
   readonly cambios = new Subject<void>();
 
-  listar(pagina: number, limite: number): Observable<Incidencia[]> {
-    const params = new HttpParams()
-      .set('page', pagina)
-      .set('limit', limite)
-      .set('sortBy', 'fecha')
-      .set('order', 'desc');
-    return this.http.get<Incidencia[]>(this.url, { params }).pipe(
-      // MockAPI a veces responde 404 cuando no hay resultados - se trata como lista vacía
-      catchError(err => err.status === 404 ? of([]) : throwError(() => err))
-    );
-  }
+  listar(pagina: number, limite: number, estado?: string): Observable<Incidencia[]> {
+  let params = new HttpParams()
+    .set('page', pagina)
+    .set('limit', limite)
+    .set('sortBy', 'fecha')
+    .set('order', 'desc');
+  if (estado) params = params.set('estado', estado);   // filtro en el SERVIDOR
+  return this.http.get<Incidencia[]>(this.url, { params }).pipe(
+    catchError(err => err.status === 404 ? of([]) : throwError(() => err))
+  );
+}
 
   obtener(id: string): Observable<Incidencia> {
     return this.http.get<Incidencia>(`${this.url}/${id}`);
