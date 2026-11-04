@@ -1,11 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonCard,
-  IonCardContent, IonButton, IonIcon, IonText
+  IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonText, IonProgressBar
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { add, list, bookmark } from 'ionicons/icons';
+import { add, list, bookmark, time, construct, checkmarkCircle, documents } from 'ionicons/icons';
 import { forkJoin } from 'rxjs';
 import { IncidenciasService } from '../services/incidencias.service';
 import { SeguimientoService } from '../services/seguimiento.service';
@@ -13,9 +12,10 @@ import { SeguimientoService } from '../services/seguimiento.service';
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
+  styleUrls: ['tab1.page.scss'],
   standalone: true,
-  imports: [RouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol,
-    IonCard, IonCardContent, IonButton, IonIcon, IonText],
+  imports: [RouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon,
+    IonText, IonProgressBar],
 })
 export class Tab1Page implements OnInit {
   private servicio = inject(IncidenciasService);
@@ -26,10 +26,12 @@ export class Tab1Page implements OnInit {
   resueltas = signal(0);
   error = signal('');
 
-  constructor() { addIcons({ add, list, bookmark }); }
+  constructor() {
+    addIcons({ add, list, bookmark, time, construct, checkmarkCircle, documents });
+  }
 
   ngOnInit() {
-    this.servicio.cambios.subscribe(() => this.cargar()); // se actualiza con altas/cambios
+    this.servicio.cambios.subscribe(() => this.cargar());
   }
 
   ionViewWillEnter() { this.cargar(); }
@@ -51,4 +53,8 @@ export class Tab1Page implements OnInit {
   }
 
   total() { return this.pendientes() + this.enProceso() + this.resueltas(); }
+
+  porcentaje() {
+    return this.total() ? Math.round((this.resueltas() * 100) / this.total()) : 0;
+  }
 }

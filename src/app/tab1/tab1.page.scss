@@ -1,0 +1,58 @@
+.saludo h1 { margin: 4px 0 2px; font-size: 24px; font-weight: 700; }
+.saludo p { margin: 0 0 16px; color: var(--ion-color-medium); }
+
+/* Recuadro del total */
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--ion-color-primary);
+  color: #fff;
+  margin-bottom: 12px;
+}
+.total div { display: flex; flex-direction: column; }
+.total ion-icon { font-size: 44px; opacity: 0.8; }
+
+.cifra { font-size: 30px; font-weight: 800; line-height: 1.1; }
+
+/* Cuadrícula de 2 columnas */
+.grilla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--ion-card-background, rgba(255, 255, 255, 0.05));
+  border-left: 5px solid;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.tile ion-icon { font-size: 26px; }
+.tile span:last-child { color: var(--ion-color-medium); font-size: 14px; }
+
+.pendiente   { border-color: var(--ion-color-warning); }
+.pendiente ion-icon   { color: var(--ion-color-warning); }
+.proceso     { border-color: var(--ion-color-primary-tint); }
+.proceso ion-icon     { color: var(--ion-color-primary-tint); }
+.resuelta    { border-color: var(--ion-color-success); }
+.resuelta ion-icon    { color: var(--ion-color-success); }
+.seguimiento { border-color: var(--ion-color-secondary); }
+.seguimiento ion-icon { color: var(--ion-color-secondary); }
+
+/* Barra de avance */
+.avance { margin: 18px 0 6px; }
+.avance-texto {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+.avance ion-progress-bar { height: 8px; border-radius: 4px; }
+
+h2 { font-size: 18px; margin: 20px 0 10px; }
