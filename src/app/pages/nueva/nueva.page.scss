@@ -1,0 +1,158 @@
+/* Barra de progreso */
+.progreso { --min-height: auto; padding: 8px 16px 10px; }
+.progreso-texto {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: var(--ion-color-medium);
+}
+.progreso-texto b { color: var(--ion-text-color); }
+ion-progress-bar { height: 6px; border-radius: 3px; }
+
+/* Títulos de sección */
+ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+}
+ion-card-title ion-badge { margin-left: auto; font-size: 11px; }
+.num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Botones de tipo */
+.tipos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.tipo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 6px;
+  border-radius: 12px;
+  border: 2px solid rgba(var(--ion-color-primary-rgb), 0.3);
+  background: transparent;
+  color: var(--ion-text-color);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+.tipo ion-icon { font-size: 28px; color: var(--ion-color-primary-tint); }
+.tipo.activo {
+  border-color: var(--ion-color-primary);
+  background: var(--ion-color-primary);
+  color: #fff;
+}
+.tipo.activo ion-icon { color: #fff; }
+
+/* Campos */
+ion-list { background: transparent; padding: 0; }
+.campo {
+  --background: rgba(var(--ion-color-primary-rgb), 0.08);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.etiqueta { font-weight: 600; margin: 14px 0 8px; color: var(--ion-text-color); }
+
+/* Fotografía */
+.vista { position: relative; margin-bottom: 10px; }
+.vista img {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.quitar { position: absolute; top: 8px; right: 8px; }
+.sin-foto {
+  height: 110px;
+  border: 2px dashed rgba(var(--ion-color-primary-rgb), 0.4);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: var(--ion-color-medium);
+}
+.sin-foto ion-icon { font-size: 34px; }
+
+/* Ubicación */
+.coords { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.aviso { color: var(--ion-color-secondary); font-size: 14px; }
+.error-campo { color: var(--ion-color-danger); font-size: 13px; margin-top: 0; }
+
+/* Clima */
+.nota, .fuente { color: var(--ion-color-medium); font-size: 13px; }
+.fuente { margin: 4px 0 0; }
+.clima { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dato-clima {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 12px 6px;
+  border-radius: 12px;
+  background: rgba(var(--ion-color-primary-rgb), 0.1);
+}
+.dato-clima ion-icon { font-size: 26px; color: var(--ion-color-primary-tint); }
+.dato-clima b { font-size: 15px; color: var(--ion-text-color); }
+.dato-clima small { font-size: 11px; color: var(--ion-color-medium); }
+.dato-clima.alerta { background: rgba(var(--ion-color-danger-rgb), 0.15); }
+.dato-clima.alerta ion-icon { color: var(--ion-color-danger); }
+
+.alerta-lluvia, .aviso-error {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+}
+.alerta-lluvia {
+  background: rgba(var(--ion-color-danger-rgb), 0.15);
+  color: var(--ion-color-danger);
+  font-weight: 600;
+}
+.aviso-error {
+  background: rgba(var(--ion-color-warning-rgb), 0.15);
+  color: var(--ion-color-warning);
+}
+.alerta-lluvia ion-icon, .aviso-error ion-icon { font-size: 22px; flex-shrink: 0; }
+
+/* Errores */
+.errores { border: 2px solid var(--ion-color-danger); }
+.errores p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  color: var(--ion-color-danger);
+}
+.errores ul { margin: 0; padding-left: 20px; color: var(--ion-color-danger); }
+
+/* Botón fijo */
+ion-footer ion-toolbar {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+}
+.guardar { margin: 0; }

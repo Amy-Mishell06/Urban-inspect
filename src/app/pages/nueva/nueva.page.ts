@@ -1,21 +1,26 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, signal, computed } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton, IonButton, IonIcon,
-  IonList, IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption, IonCard, IonCardHeader,
-  IonCardTitle, IonCardContent, IonSpinner, IonText, AlertController, ToastController
+  IonList, IonItem, IonInput, IonTextarea, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
+  IonSpinner, IonBadge, IonSegment, IonSegmentButton, IonLabel, IonProgressBar, IonFooter,
+  AlertController, ToastController, SegmentCustomEvent
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { camera, locate, trash, cloud } from 'ionicons/icons';
+import {
+  camera, locate, trash, refresh, bulb, construct, warning, water, leaf, thermometer,
+  rainy, partlySunny, checkmarkCircle, alertCircle, image, cloudOffline
+} from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Geolocation } from '@capacitor/geolocation';
 import { IncidenciasService } from '../../services/incidencias.service';
 import { ClimaService, Clima } from '../../services/clima.service';
 import { FotosService } from '../../services/fotos.service';
 import { BorradorService, Borrador } from '../../services/borrador.service';
-import { Incidencia, Prioridad, TIPOS } from '../../models/incidencia.model';
+import { Incidencia, Prioridad, TIPOS, textoTipo, iconoTipo } from '../../models/incidencia.model';
+
 
 function aNumero(v: unknown): number | null {
   if (v === null || v === undefined || v === '') return null;
@@ -26,11 +31,14 @@ function aNumero(v: unknown): number | null {
 @Component({
   selector: 'app-nueva',
   templateUrl: 'nueva.page.html',
+  styleUrls: ['nueva.page.scss'],
   standalone: true,
   imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton,
-    IonButton, IonIcon, IonList, IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
-    IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSpinner, IonText],
+    IonButton, IonIcon, IonList, IonItem, IonInput, IonTextarea, IonCard, IonCardHeader,
+    IonCardTitle, IonCardContent, IonSpinner, IonBadge, IonSegment, IonSegmentButton, IonLabel,
+    IonProgressBar, IonFooter],
 })
+
 export class NuevaPage implements OnInit {
   private servicio = inject(IncidenciasService);
   private climaSrv = inject(ClimaService);
@@ -42,6 +50,33 @@ export class NuevaPage implements OnInit {
   private route = inject(ActivatedRoute);
 
   tipos = TIPOS;
+
+  @ViewChild(IonContent) contenido!: IonContent;
+  textoTipo = textoTipo;
+  iconoTipo = iconoTipo;
+
+  requisitos = computed(() => {
+    const r = [
+      !!this.tipo(),
+      this.descripcion().trim().length >= 5,
+      !!this.direccion().trim(),
+      !!this.sector().trim(),
+      !!this.prioridad(),
+    ];
+    if (this.prioridad() === 'alta') r.push(!!this.foto());
+    if (this.tipo() === 'bache') r.push(this.coordsValidas());
+    return { hechos: r.filter(Boolean).length, total: r.length };
+  });
+
+  elegirTipo(t: string) {
+    this.tipo.set(t);
+    this.guardarBorrador();
+  }
+
+  elegirPrioridad(ev: SegmentCustomEvent) {
+    this.prioridad.set(ev.detail.value as Prioridad);
+    this.guardarBorrador();
+  }
 
   tipo = signal('');
   descripcion = signal('');
@@ -71,9 +106,14 @@ export class NuevaPage implements OnInit {
   });
   lluviaFuerte = computed(() => (this.climaDatos()?.precipitacion ?? 0) > 5);
 
-  constructor() { addIcons({ camera, locate, trash, cloud }); }
+  constructor() {
+    addIcons({
+      camera, locate, trash, refresh, bulb, construct, warning, water, leaf, thermometer,
+      rainy, partlySunny, checkmarkCircle, alertCircle, image, cloudOffline
+    });
+  }
 
- //borrador
+  //borrador
   async ngOnInit() {
     const b = await this.borrador.obtener();
     if (!b) return;
@@ -218,8 +258,11 @@ export class NuevaPage implements OnInit {
   }
 
   async guardar() {
-    this.errores.set(this.validar());
-    if (this.errores().length) { this.toast('Revise los datos indicados.', 'warning'); return; }
+    if (this.errores().length) {
+      this.contenido.scrollToTop(300);
+      this.toast('Revise los datos indicados.', 'warning');
+      return;
+    }
 
     this.guardando.set(true);
     try {
