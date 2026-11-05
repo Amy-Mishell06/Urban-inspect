@@ -153,8 +153,20 @@ firebase deploy --only hosting
 |---|---|
 | `firebase` | SDK oficial para Authentication. La configuración web de Firebase no es secreta; la seguridad la da el login. |
 
-# Captura
+# Capturas
 
 Implementación de login y publicación web
 
-<img width="350" alt="image" src="https://github.com/user-attachments/assets/8118c41a-9c70-46c6-aebc-65d9af1dea3b" />
+<img width="380" alt="image" src="https://github.com/user-attachments/assets/8118c41a-9c70-46c6-aebc-65d9af1dea3b" />
+
+Pagina de inicio
+
+<img width="380" alt="image" src="https://github.com/user-attachments/assets/9c75bec6-73f0-4acb-96d9-230af5aebdd4" />
+
+Lista de incidencias
+
+<img width="380" alt="image" src="https://github.com/user-attachments/assets/4e1aaabb-cba6-41ab-a308-ecde55b58a9a" />
+
+Seguimiento
+
+<img width="380" alt="image" src="https://github.com/user-attachments/assets/4385cd0e-78fa-4e5d-bbd8-f7153d5f38b1" />
