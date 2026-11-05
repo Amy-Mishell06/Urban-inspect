@@ -135,3 +135,24 @@ src/app/
     └── nueva/     Formulario de registro
 resources/      Ícono de la aplicación
 ```
+### 4. Publicación web y login
+- **App publicada en Firebase Hosting:** https://urbaninspect-b06fa.web.app
+- **Inicio de sesión** con Firebase Authentication (correo y contraseña). Las cuentas de inspectores las crea el administrador en la consola de Firebase; no hay registro libre.
+- **Rutas protegidas** con guards funcionales: `authGuard` exige sesión y `invitadoGuard` evita volver al login con sesión activa.
+- **Sesión persistente** en el dispositivo (IndexedDB): no hay que ingresar cada vez que se abre la app.
+- **Recuperación de contraseña** por correo y **cierre de sesión** desde Inicio.
+- Las credenciales de prueba se entregan por separado y no se publican en el repositorio.
+
+Para publicar una nueva versión:
+```bash
+ionic build --configuration production
+firebase deploy --only hosting
+```
+
+| Dependencia | Motivo |
+|---|---|
+| `firebase` | SDK oficial para Authentication. La configuración web de Firebase no es secreta; la seguridad la da el login. |
+
+#Captura
+Implementación de login y publicación web
+<img width="350" alt="image" src="https://github.com/user-attachments/assets/8118c41a-9c70-46c6-aebc-65d9af1dea3b" />
