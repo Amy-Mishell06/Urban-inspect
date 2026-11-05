@@ -1,23 +1,28 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonText, IonProgressBar
+  IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonIcon, IonText,
+  IonProgressBar, AlertController
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { add, list, bookmark, time, construct, checkmarkCircle, documents } from 'ionicons/icons';
+import { add, list, bookmark, time, construct, checkmarkCircle, documents, logOutOutline } from 'ionicons/icons';
 import { forkJoin } from 'rxjs';
 import { IncidenciasService } from '../services/incidencias.service';
 import { SeguimientoService } from '../services/seguimiento.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss'],
   standalone: true,
-  imports: [RouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon,
-    IonText, IonProgressBar],
+  imports: [RouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons,
+    IonIcon, IonText, IonProgressBar],
 })
 export class Tab1Page implements OnInit {
+  auth = inject(AuthService);
+  private router = inject(Router);
+  private alertCtrl = inject(AlertController);
   private servicio = inject(IncidenciasService);
   seguimiento = inject(SeguimientoService);
 
@@ -27,7 +32,7 @@ export class Tab1Page implements OnInit {
   error = signal('');
 
   constructor() {
-    addIcons({ add, list, bookmark, time, construct, checkmarkCircle, documents });
+    addIcons({ add, list, bookmark, time, construct, checkmarkCircle, documents, logOutOutline });
   }
 
   ngOnInit() {
@@ -56,5 +61,23 @@ export class Tab1Page implements OnInit {
 
   porcentaje() {
     return this.total() ? Math.round((this.resueltas() * 100) / this.total()) : 0;
+  }
+
+  async cerrarSesion() {
+    const a = await this.alertCtrl.create({
+      header: 'Cerrar sesión',
+      message: '¿Desea salir de su cuenta?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Salir',
+          handler: async () => {
+            await this.auth.salir();
+            this.router.navigateByUrl('/login', { replaceUrl: true });
+          },
+        },
+      ],
+    });
+    await a.present();
   }
 }

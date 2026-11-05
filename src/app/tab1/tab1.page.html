@@ -1,20 +1,24 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-title>UrbanInspect</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()" aria-label="Cerrar sesión">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <div class="saludo">
     <h1>Hola, inspector</h1>
-    <p>Resumen de incidencias del municipio</p>
+    <p>{{ auth.usuario()?.email }}</p>
   </div>
 
   @if (error()) {
     <ion-text color="danger"><p>{{ error() }}</p></ion-text>
   }
 
-  <!-- Total -->
   <div class="total">
     <div>
       <span class="cifra">{{ total() }}</span>
@@ -47,7 +51,6 @@
     </div>
   </div>
 
-  <!-- Avance -->
   <div class="avance">
     <div class="avance-texto">
       <span>Incidencias resueltas</span>
@@ -56,7 +59,6 @@
     <ion-progress-bar [value]="porcentaje() / 100" color="success"></ion-progress-bar>
   </div>
 
-  <!-- Accesos rápidos -->
   <h2>Accesos rápidos</h2>
   <ion-button expand="block" size="large" color="secondary" routerLink="/nueva">
     <ion-icon slot="start" name="add"></ion-icon>Registrar incidencia

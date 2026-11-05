@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonApp, IonRouterOutlet, AlertController } from '@ionic/angular';
 import { BorradorService } from './services/borrador.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -13,9 +14,12 @@ export class AppComponent implements OnInit {
   private borrador = inject(BorradorService);
   private alertCtrl = inject(AlertController);
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   async ngOnInit() {
-    if (window.location.pathname.startsWith('/nueva')) return; // el formulario ya pregunta
+    await this.auth.esperar();
+    if (!this.auth.autenticado()) return;   
+    if (window.location.pathname.startsWith('/nueva')) return; 
     const b = await this.borrador.obtener();
     if (!b) return;
     const a = await this.alertCtrl.create({
