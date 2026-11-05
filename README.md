@@ -1,8 +1,39 @@
 # UrbanInspect · Inspección de infraestructura urbana
 
+<img src="resources/icono-urbaninspect.png" width="96" alt="Ícono de UrbanInspect" />
+
 Aplicación móvil para que los inspectores del Municipio de Quito consulten, registren y actualicen incidencias de infraestructura urbana (luminarias, baches, señalización, alcantarillas y parques), con evidencia fotográfica, ubicación y consulta del clima.
 
 **Tecnologías:** Ionic 8 · Angular 22 (standalone, zoneless con signals) · TypeScript · Capacitor
+
+## Versión corregida (rama `correcciones-mejoras`)
+
+Esta rama contiene las correcciones y mejoras solicitadas después de la evaluación.
+La versión original de la prueba se conserva sin cambios en la rama `main` y en el tag `v1-prueba-original`.
+
+### 1. Uso de Cloudinary
+- Las fotografías capturadas se suben a Cloudinary con un *upload preset* sin firma (sin credenciales en el código).
+- Se guardan en la carpeta `urbaninspect/incidencias` con la etiqueta `urbaninspect`.
+- En MockAPI solo se almacena la URL pública (`secure_url`).
+- Un pipe propio (`CloudinaryPipe`) solicita a Cloudinary la versión adecuada para cada pantalla:
+  - Listado: `w_1200,h_500,c_fill,g_auto` (miniatura recortada en el área importante).
+  - Detalle: `w_1600,c_limit` (no supera 1600 px).
+  - En ambos casos `q_auto:good,f_auto`: calidad y formato automáticos (WebP/AVIF), con mucho menos peso que el original.
+
+### 2. Mejoras de interfaz
+| Pantalla | Mejoras |
+|---|---|
+| General | Paleta institucional (azul) y naranja de señalización, tarjetas redondeadas, íconos en lugar de emojis, nombre e ícono propios de la app. |
+| Inicio | Saludo, total destacado, indicadores por estado con ícono y color, porcentaje de incidencias resueltas y accesos rápidos. |
+| Listado | Filtro por estado aplicado en el servidor (conserva la paginación), estado sobre la foto, ícono por tipo, prioridad con color y esqueletos de carga. |
+| Detalle | Foto de portada con estado y prioridad, barra de progreso del estado, datos agrupados en tarjetas y botón "Ver en el mapa". |
+| Formulario | Secciones numeradas, barra de datos obligatorios completados, tipo y prioridad con botones, etiquetas Obligatoria/Opcional dinámicas, clima en recuadros y botón Guardar fijo. |
+| Seguimiento | Filas con ícono por tipo, estado y prioridad, contador y mensaje vacío con acceso al listado. |
+
+### 3. Control de versiones
+- Rama de trabajo: `correcciones-mejoras`.
+- La rama `main` no se modificó ni se fusionó con esta rama.
+- APK de esta versión: `UrbanInspect-v2-correcciones.apk`.
 
 ---
 
@@ -16,13 +47,14 @@ Aplicación móvil para que los inspectores del Municipio de Quito consulten, re
 ## Instalación y ejecución
 
 ```bash
-git clone https://github.com/Amy-Mishell06/<nombre-del-repositorio>.git
-cd <nombre-del-repositorio>
+git clone <URL-del-repositorio>
+cd <carpeta-del-repositorio>
+git checkout correcciones-mejoras
 npm install
 ionic serve
 ```
 
-La app se abre en `http://localhost:8100`.
+La URL del repositorio se copia desde el botón verde **Code** de GitHub. La app se abre en `http://localhost:8100`.
 
 ## Generar e instalar el APK
 
@@ -87,7 +119,8 @@ No se agregaron otras librerías. HTTP se maneja con `HttpClient` de Angular.
 
 ```
 src/app/
-├── models/incidencia.model.ts       Modelo, estados y colores
+├── models/incidencia.model.ts       Modelo, estados, tipos, íconos y colores
+├── pipes/cloudinary.pipe.ts         Transformaciones de Cloudinary por pantalla
 ├── services/
 │   ├── incidencias.service.ts       MockAPI (listar, obtener, crear, actualizar)
 │   ├── seguimiento.service.ts       Seguimiento local (Preferences)
@@ -100,35 +133,5 @@ src/app/
 └── pages/
     ├── detalle/   Detalle y cambio de estado
     └── nueva/     Formulario de registro
+resources/      Ícono de la aplicación
 ```
-## Capturas de pantalla
-
-### Pantalla de inicio
-Resumen con indicadores: total de incidencias, pendientes, en proceso, resueltas y las marcadas para seguimiento. Accesos rápidos para registrar y ver incidencias.
-
-<img width="502" height="802" alt="image" src="https://github.com/user-attachments/assets/e959867f-2e26-4238-9186-6d3ca71ee498" />
-
-### Listado de incidencias
-Tarjetas con código, tipo, descripción, dirección, sector, fecha, estado y fotografía. Carga progresiva al desplazarse hasta el final.
-
-<img width="377" height="797" alt="image" src="https://github.com/user-attachments/assets/f02458ba-0304-4751-859e-f8c9be51d8ef" />
-
-### Detalle de la incidencia
-Toda la información de la incidencia, botón para marcar o desmarcar seguimiento y cambio de estado con observación obligatoria al resolver.
-
-<img width="377" height="793" alt="image" src="https://github.com/user-attachments/assets/a05e874e-1c4e-48a8-a766-bb020dc7cb52" />
-
-### Registro de incidencia
-Formulario con validación de campos obligatorios, captura de fotografía con vista previa, ubicación por GPS o manual y consulta del clima.
-
-<img width="378" height="607" alt="image" src="https://github.com/user-attachments/assets/bd5df8c1-7def-4950-9839-bf2e8c402e80" />
-
-### Consulta del clima
-Temperatura, precipitación de la última hora y condición meteorológica, con advertencia si la lluvia supera los 5 mm.
-
-<img width="1080" height="542" alt="image" src="https://github.com/user-attachments/assets/2a177526-0119-4354-a01e-80f2c538d0c0" />
-
-### Recuperación de registro incompleto
-Al volver a abrir la app se ofrece continuar o descartar el registro que quedó sin terminar.
-
-<img width="557" height="228" alt="image" src="https://github.com/user-attachments/assets/f7a52f95-a33e-4930-a5e4-6c4024e52dd5" />
